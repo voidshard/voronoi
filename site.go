@@ -15,6 +15,7 @@ type Site interface {
 	Edges() [][2]image.Point
 	Vertices() []image.Point
 	AllContains() PointGenerator
+	Contains(image.Point) bool
 	Bounds() image.Rectangle
 	Neighbours() []*Neighbour
 }
@@ -30,6 +31,7 @@ type vSite struct {
 }
 
 // AllContains returns a PointGenerator for the given site
+// that can list out all points in this site one at a time.
 func (s *vSite) AllContains() PointGenerator {
 	return &vPGen{
 		parent: s.parent,
@@ -39,7 +41,14 @@ func (s *vSite) AllContains() PointGenerator {
 	}
 }
 
-// Neighbours returns all Sites that share an edge with this site.
+// Contains returns if this site contains the point `p`
+func (s *vSite) Contains(p image.Point) bool {
+	other := s.parent.SiteFor(p.X, p.Y)
+	return s.ID() == other.ID()
+}
+
+// Neighbours returns all Sites that share an edge with this site,
+// along with the shared edge.
 func (s *vSite) Neighbours() []*Neighbour {
 	toEdgeId := func(e [2]image.Point) string {
 		a, b := e[0], e[1]

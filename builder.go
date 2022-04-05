@@ -17,6 +17,7 @@ type Builder struct {
 	rng    *rand.Rand
 	sfilt  []SiteFilter
 	cfilt  []CandidateFilter
+	uniq   map[image.Point]int
 }
 
 // NewBuilder returns a new Voronoi diagram builder
@@ -25,6 +26,7 @@ func NewBuilder(bounds image.Rectangle) *Builder {
 		bounds: bounds,
 		sites:  []image.Point{},
 		rng:    rand.New(rand.NewSource(time.Now().UnixNano())),
+		uniq:   map[image.Point]int{},
 	}
 }
 
@@ -72,7 +74,13 @@ func (b *Builder) AddRandomSite() (int, int, int, bool) {
 }
 
 // AddSite places a site at the given location, assuming it obeys currently set filters.
+// We also never add a point in the same place twice.
 func (b *Builder) AddSite(x, y int) (int, bool) {
+	id, addedAlready := b.uniq[image.Pt(x, y)]
+	if addedAlready {
+		// as a bit of sugar, return id even as we reject re-adding it
+		return id, false
+	}
 	if !b.accepted(x, y) {
 		return 0, false
 	}
@@ -82,6 +90,12 @@ func (b *Builder) AddSite(x, y int) (int, bool) {
 // accepted returns if the proposed site location (x, y) is acceptable to our filters.
 // We run CandidateFilter(s) first so we can hopefully reject candidates early.
 func (b *Builder) accepted(candidateX, candidateY int) bool {
+	_, addedAlready := b.uniq[image.Pt(candidateX, candidateY)]
+	if addedAlready {
+		// makes no sense to have two sites at the same place
+		return false
+	}
+
 	// first check if we can reject early with a CandidateFilter
 	if b.cfilt != nil {
 		for _, fn := range b.cfilt {
@@ -113,6 +127,8 @@ func calculateDist(ax, ay, bx, by int) float64 {
 // addSite adds a site, no filters are run.
 func (b *Builder) addSite(x, y int) int {
 	id := len(b.sites)
-	b.sites = append(b.sites, image.Pt(x, y))
+	p := image.Pt(x, y)
+	b.sites = append(b.sites, p)
+	b.uniq[p] = id
 	return id
 }
