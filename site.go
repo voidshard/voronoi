@@ -38,6 +38,7 @@ func (s *vSite) AllContains() PointGenerator {
 		me:     s,
 		x:      -1,
 		y:      -1,
+		bounds: s.Bounds(),
 	}
 }
 

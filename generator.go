@@ -13,6 +13,7 @@ type PointGenerator interface {
 // vPGen satisties PointGenerator
 type vPGen struct {
 	parent *Voronoi
+	bounds image.Rectangle
 	me     Site
 	x      int
 	y      int
@@ -26,16 +27,15 @@ func (v *vPGen) Next() *image.Point {
 		v.y = v.bounds.Min.Y
 	}
 
-	bounds := v.me.Bounds()
-	for ; v.y < bounds.Max.Y; v.y++ {
-		for x := v.x; x < bounds.Max.X; x++ {
+	for ; v.y < v.bounds.Max.Y; v.y++ {
+		for x := v.x; x < v.bounds.Max.X; x++ {
 			s := v.parent.SiteFor(x, v.y)
 			if s.ID() == v.me.ID() {
 				v.x = x + 1
-				return &p
+				return &image.Pt(x, v.y)
 			}
 		}
-		v.x = bounds.Min.X
+		v.x = v.bounds.Min.X
 	}
 
 	return nil

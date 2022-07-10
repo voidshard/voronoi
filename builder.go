@@ -39,7 +39,7 @@ func (b *Builder) SiteCount() int {
 // Nb. there must be at least one site set or this will panic.
 func (b *Builder) Voronoi() (*Voronoi, error) {
 	if len(b.sites) == 0 {
-		return fmt.Errorf("cannot build voronoi diagram: no sites")
+		return nil, fmt.Errorf("cannot build voronoi diagram: no sites")
 	}
 	return newVoronoi(b), nil
 }
