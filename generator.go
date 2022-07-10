@@ -32,7 +32,8 @@ func (v *vPGen) Next() *image.Point {
 			s := v.parent.SiteFor(x, v.y)
 			if s.ID() == v.me.ID() {
 				v.x = x + 1
-				return &image.Pt(x, v.y)
+				p := image.Pt(x, v.y)
+				return &p
 			}
 		}
 		v.x = v.bounds.Min.X
