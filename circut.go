@@ -1,4 +1,4 @@
-package cell
+package voronoi
 
 import (
 	"fmt"
