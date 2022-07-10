@@ -39,6 +39,27 @@ func newVoronoi(b *Builder) *Voronoi {
 	return me
 }
 
+// Circut finds a path around all the given sites (we assume they're lumped together)
+// (ie, they're considered "inside"), see the 'Circut' function.
+func (v *Voronoi) Circut(inside []Site) [][2]image.Point {
+	ids := map[int]bool{}
+	for _, s := range inside {
+		ids[s.ID()] = true
+	}
+
+	// outside is anything not inside, obviously
+	outside := []Site{}
+	for _, s := range v.Sites() {
+		_, ok := ids[s.ID()]
+		if ok {
+			continue
+		}
+		outside = append(outside, s)
+	}
+
+	return Circut(v.bounds, inside, outside)
+}
+
 // Bounds returns the bounding rect for this diagram
 func (v *Voronoi) Bounds() image.Rectangle {
 	return v.bounds
